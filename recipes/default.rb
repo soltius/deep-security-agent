@@ -96,7 +96,7 @@ end
 
 #install agent package
 case node[:platform_family]
-  when 'rhel', 'suse'
+  when 'rhel', 'suse', 'amazon'
     rpm_package "ds_agent" do
       source local_file_path
       action :install
@@ -163,13 +163,20 @@ unless ::File.exist?(activated_file_path)
   dsa_control(dsa_args, 'activate')
 
   #confirm the agent is activated and create a file to prevent repeat activations
-  file activated_file_path do
-    content 'Delete this file to have chef reset & reactivate agent'
-    owner   'root'
-    group   'root'
-    mode     00600
+  if node[:platform_family] = 'windows'
+    file activated_file_path do
+      content 'Delete this file to have chef reset & reactivate agent'
+      rights  :full_control, 'Everyone'
+      rights  :full_control, 'Administrator'
+    end
+  else  
+    file activated_file_path do
+      content 'Delete this file to have chef reset & reactivate agent'
+      owner   'root'
+      group   'root'
+      mode     00600
+    end
   end
-
   Chef::Log.info('Activated the Deep Security agent')
 else
   Chef::Log.info("#{activated_file_path} eists, will not reset and attempt to activated again")
