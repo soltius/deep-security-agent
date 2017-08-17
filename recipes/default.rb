@@ -163,7 +163,7 @@ unless ::File.exist?(activated_file_path)
   dsa_control(dsa_args, 'activate')
 
   #confirm the agent is activated and create a file to prevent repeat activations
-  if node[:platform_family] = 'windows'
+  if node[:platform_family] == 'windows'
     file activated_file_path do
       content 'Delete this file to have chef reset & reactivate agent'
       rights  :full_control, 'Everyone'
