@@ -31,7 +31,7 @@ url = "https://#{agent[:download][:host]}:#{agent[:download][:port]}/software/ag
 platform_major_version = node[:platform_version].split('.').first
 case node[:platform_family]
 
-  when 'rhel' #redhat and amazon
+  when 'rhel'
 		if node[:kernel][:release].include?('amzn')
 			url << '/amzn1'
     else
@@ -41,6 +41,9 @@ case node[:platform_family]
 				url << "/RedHat_EL#{platform_major_version}"
       end
     end
+
+	when 'amazon'
+		url << "/amzn1"
 
   when 'suse'
 		url << "/SuSE_#{platform_major_version}"
@@ -61,7 +64,7 @@ url << "#{bitness == 64 ? '/x86_64/' : '/i386/'}"
 
 #determine local file path
 case node[:platform_family]
-	when 'rhel', 'suse'
+	when 'rhel', 'suse', 'amazon'
 		local_file_name = 'ds_agent.rpm'
 	when 'windows'
 		local_file_name = 'ds_agent.msi'
@@ -169,7 +172,7 @@ unless ::File.exist?(activated_file_path)
       rights  :full_control, 'Everyone'
       rights  :full_control, 'Administrator'
     end
-  else  
+  else
     file activated_file_path do
       content 'Delete this file to have chef reset & reactivate agent'
       owner   'root'
